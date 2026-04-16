@@ -607,6 +607,7 @@
                 Organized Checklist
               </p>
               <small
+                id="editIndicator"
                 style="
                   color: var(--text-muted);
                   margin-left: 10px;
@@ -655,6 +656,7 @@
 
       <!-- Sheet Manager -->
       <div
+        id="sheetManager"
         style="
           margin-bottom: 20px;
           display: flex;
@@ -709,6 +711,7 @@
 
       <!-- Add Row -->
       <div
+        id="addRowSection"
         style="
           display: flex;
           gap: 10px;
@@ -827,6 +830,20 @@
                 <h6>
                   <i class="fas fa-lightbulb"></i> JSON Format with Full Data
                 </h6>
+                <div
+                  class="alert alert-warning mt-2"
+                  style="
+                    background: rgba(168, 85, 247, 0.1);
+                    border-color: #a855f7;
+                    font-size: 11px;
+                  "
+                >
+                  <strong style="color: var(--text-primary)"
+                    >Column Structure:</strong
+                  >
+                  Each row array format is: [ID, English Name, Kannada Name,
+                  ...other columns]
+                </div>
                 <p class="text-muted mt-3 mb-2">
                   <strong style="color: var(--text-primary)"
                     >Complete JSON structure (copy & paste to LLM):</strong
@@ -849,12 +866,13 @@
   },
   "headers": {
     "0": {"kannada": "", "english": "#", "dataType": "number"},
-    "1": {"kannada": "", "english": "Name", "dataType": "text"},
-    "2": {"kannada": "", "english": "Value", "dataType": "currency"}
+    "1": {"kannada": "", "english": "English Name", "dataType": "text"},
+    "2": {"kannada": "ಕನ್ನಡ ಹೆಸರು", "english": "Kannada Name", "dataType": "text"},
+    "3": {"kannada": "", "english": "Value", "dataType": "currency"}
   },
   "data": [
-    [1, "Item Name", "$19.99"],
-    [2, "Another Item", "$29.99"]
+    [1, "Item EN", "ಐಟಿಂ ಕಾ", "₹1200"],
+    [2, "Item 2 EN", "ಐಟಿಂ 2 ಕಾ", "₹2500"]
   ]
 }</code></pre>
                 <hr />
@@ -876,12 +894,13 @@
   "headers": {
     "0": {"kannada": "", "english": "#", "dataType": "number"},
     "1": {"kannada": "", "english": "Product", "dataType": "text"},
-    "2": {"kannada": "", "english": "Price", "dataType": "currency"}
+    "2": {"kannada": "ಪಠ್ಯ ಪ್ರಕಾರ", "english": "Kannada", "dataType": "text"},
+    "3": {"kannada": "", "english": "Price", "dataType": "currency"}
   },
   "data": [
-    [1, "Milk", "$4.99"],
-    [2, "Bread", "$2.50"],
-    [3, "Eggs", "$3.49"]
+    [1, "Milk", "ಹಾಲು", "₹50"],
+    [2, "Bread", "ಬ್ರೆಡ್", "₹30"],
+    [3, "Eggs", "ಚೆಲ್ಲು", "₹40"]
   ]
 }</textarea
                 >
@@ -917,8 +936,10 @@
                 <small class="text-muted mt-2 d-block">
                   ✓ <strong>Metadata:</strong> Title and subtitle<br />
                   ✓ <strong>Headers:</strong> Column names and data types
-                  (text/number/currency-INR)<br />
-                  ✓ <strong>Data:</strong> Your items
+                  (text/number/currency-INR). Column 1 = English name, Column 2
+                  = Kannada name<br />
+                  ✓ <strong>Data:</strong> Arrays where index 0 = ID, 1 =
+                  English, 2 = Kannada, 3+ = other columns
                 </small>
               </div>
             </div>
@@ -1330,20 +1351,36 @@
 
           tr.innerHTML = cellsHtml;
 
-          // Add long-press listener for delete
+          // Add long-press listener for delete (only on empty space, not on inputs)
           let touchStartTime = 0;
-          tr.addEventListener("touchstart", () => {
+          let touchStartTarget = null;
+
+          tr.addEventListener("touchstart", (e) => {
             touchStartTime = Date.now();
+            touchStartTarget = e.target;
           });
-          tr.addEventListener("touchend", () => {
+
+          tr.addEventListener("touchend", (e) => {
             const touchDuration = Date.now() - touchStartTime;
-            if (touchDuration > 500) {
-              showDeleteModal(index);
+            // Only trigger delete if it was a long-press AND not on an input/editable cell
+            if (
+              touchDuration > 500 &&
+              touchStartTarget &&
+              !touchStartTarget.querySelector("input")
+            ) {
+              const hasInput = tr.querySelector("input");
+              if (!hasInput) {
+                showDeleteModal(index);
+              }
             }
           });
+
           tr.addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            showDeleteModal(index);
+            // Don't trigger delete if right-clicking on an input
+            if (!tr.querySelector("input")) {
+              e.preventDefault();
+              showDeleteModal(index);
+            }
           });
 
           tbody.appendChild(tr);
@@ -1687,6 +1724,9 @@
 
           // Hide elements that shouldn't be in export
           const controls = document.querySelector(".controls");
+          const sheetManager = document.getElementById("sheetManager");
+          const addRowSection = document.getElementById("addRowSection");
+          const editIndicator = document.getElementById("editIndicator");
           const infoBox = document.querySelector(".info-box");
           const actionCells = document.querySelectorAll(".action-cell");
           const removeColBtns = document.querySelectorAll(".remove-col-btn");
@@ -1697,6 +1737,9 @@
 
           [
             controls,
+            sheetManager,
+            addRowSection,
+            editIndicator,
             infoBox,
             ...actionCells,
             ...removeColBtns,
