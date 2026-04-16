@@ -1713,6 +1713,12 @@
                 columnHeaders[idx].dataType = "text";
               }
             });
+
+            // CRITICAL: Set columns array from imported headers!
+            columns = Object.keys(data.headers)
+              .map(Number)
+              .sort((a, b) => a - b);
+
             items = data.data || [];
 
             document.getElementById("pageTitle").textContent = pageTitle;
