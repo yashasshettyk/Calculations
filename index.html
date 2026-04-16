@@ -1260,14 +1260,17 @@
           return;
         }
 
-        // Clear everything
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(CURRENT_SHEET_KEY);
+        // Clear EVERYTHING from localStorage
+        localStorage.clear();
         allSheets = {};
+        currentSheetId = null;
 
-        // Create fresh default sheet
-        createNewSheet();
-        alert("✅ All storage cleared! Fresh start ready.");
+        alert("✅ All data completely deleted! Refreshing page...");
+
+        // Reload page to start fresh
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
 
       function updateSheetSelector() {
