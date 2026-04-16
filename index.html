@@ -695,7 +695,20 @@
           onclick="deleteCurrentSheet()"
           title="Delete current sheet"
         >
-          <i class="fas fa-trash"></i> Delete
+          <i class="fas fa-trash"></i> Delete Sheet
+        </button>
+        <button
+          class="btn-icon danger"
+          style="
+            padding: 5px 10px;
+            font-size: 11px;
+            background: #7c2d12;
+            border: 1px solid #9a3412;
+          "
+          onclick="clearAllStorage()"
+          title="Delete all sheets and clear storage"
+        >
+          <i class="fas fa-bomb"></i> Clear All
         </button>
       </div>
 
@@ -1128,6 +1141,11 @@
       }
 
       function createNewSheet() {
+        // Save current sheet first if one exists
+        if (currentSheetId) {
+          saveToLocalStorage();
+        }
+
         const newId = generateSheetId();
         const sheetCount = Object.keys(allSheets).length + 1;
 
@@ -1160,6 +1178,9 @@
         currentSheetId = sheetId;
         loadSheet(sheetId);
         updateSheetSelector();
+
+        // Ensure localStorage is updated after loading
+        saveToLocalStorage();
       }
 
       function loadSheet(sheetId) {
@@ -1169,6 +1190,9 @@
         pageTitle = sheet.title || "Items";
         pageSubtitle = sheet.subtitle || "Organized Checklist";
         columns = [...sheet.columns];
+
+        // CRITICAL: Clear columnHeaders completely before loading new data to prevent pollution
+        Object.keys(columnHeaders).forEach((key) => delete columnHeaders[key]);
         Object.assign(
           columnHeaders,
           JSON.parse(JSON.stringify(sheet.columnHeaders)),
@@ -1194,12 +1218,38 @@
           return;
 
         delete allSheets[currentSheetId];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allSheets));
         const remainingSheets = Object.keys(allSheets);
         currentSheetId = remainingSheets[0];
         loadSheet(currentSheetId);
         updateSheetSelector();
         saveToLocalStorage();
         alert("✅ Sheet deleted!");
+      }
+
+      function clearAllStorage() {
+        if (
+          !confirm(
+            "🔥 This will DELETE ALL SHEETS and clear localStorage completely!\n\nType YES to confirm:",
+          )
+        )
+          return;
+
+        // Require user to type YES for extra safety
+        const userInput = prompt("Type YES to confirm deletion of all data:");
+        if (userInput !== "YES") {
+          alert("❌ Cancelled. Your data is safe.");
+          return;
+        }
+
+        // Clear everything
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(CURRENT_SHEET_KEY);
+        allSheets = {};
+
+        // Create fresh default sheet
+        createNewSheet();
+        alert("✅ All storage cleared! Fresh start ready.");
       }
 
       function updateSheetSelector() {
