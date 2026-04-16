@@ -879,12 +879,12 @@
   },
   "headers": {
     "0": {"kannada": "", "english": "#", "dataType": "number"},
-    "1": {"kannada": "", "english": "English Name", "dataType": "text"},
-    "2": {"kannada": "ಕನ್ನಡ ಹೆಸರು", "english": "Kannada Name", "dataType": "text"},
-    "3": {"kannada": "", "english": "Value", "dataType": "currency"}
+    "1": {"kannada": "", "english": "Item Name", "dataType": "text"},
+    "2": {"kannada": "ವಸ್ತು", "english": "Kannada Name", "dataType": "text"},
+    "3": {"kannada": "", "english": "Price Range", "dataType": "currency"}
   },
   "data": [
-    [1, "Item EN", "ಐಟಿಂ ಕಾ", "₹1200"],
+    [1, "Item EN", "ಐಟಿಂ ಕಾ", "70 - 110 rupees"],
     [2, "Item 2 EN", "ಐಟಿಂ 2 ಕಾ", "₹2500"]
   ]
 }</code></pre>
@@ -907,18 +907,18 @@
   "headers": {
     "0": {"kannada": "", "english": "#", "dataType": "number"},
     "1": {"kannada": "", "english": "Product", "dataType": "text"},
-    "2": {"kannada": "ಪಠ್ಯ ಪ್ರಕಾರ", "english": "Kannada", "dataType": "text"},
+    "2": {"kannada": "ಪ್ರೋಡಕ್ಟ್", "english": "Kannada", "dataType": "text"},
     "3": {"kannada": "", "english": "Price", "dataType": "currency"}
   },
   "data": [
-    [1, "Milk", "ಹಾಲು", "₹50"],
-    [2, "Bread", "ಬ್ರೆಡ್", "₹30"],
-    [3, "Eggs", "ಚೆಲ್ಲು", "₹40"]
+    [1, "Milk", "ಹಾಲು", "₹50-60 per liter"],
+    [2, "Bread", "ಬ್ರೆಡ್", "25-40 rupees"],
+    [3, "Eggs", "ಚೆಲ್ಲು", "₹4-6 for 10 pieces"]
   ]
 }</textarea
                 >
                 <div
-                  class="alert alert-info mt-3 mb-0"
+                  class="alert alert-info mt-3"
                   style="
                     background: rgba(132, 92, 223, 0.1);
                     border-color: var(--accent);
@@ -932,6 +932,18 @@
                     text, number, or currency (INR)</small
                   >
                 </div>
+                <div
+                  class="alert alert-success mt-2 mb-0"
+                  style="
+                    background: rgba(52, 211, 153, 0.1);
+                    border-color: #34d399;
+                    font-size: 11px;
+                  "
+                >
+                  <i class="fas fa-check-double"></i>
+                  <strong style="color: var(--text-primary)">Flexible Formats:</strong>
+                  Any column accepts <strong>ANY text</strong>. Currency examples: "₹100", "70-110 rupees", "100 to 200", "approx ₹5000"
+                </div>
               </div>
 
               <!-- Paste JSON Tab -->
@@ -940,7 +952,9 @@
                   ><strong>Paste your JSON here:</strong></label
                 >
                 <textarea
-                  id="jsonInput"
+                  id="jsonInput"<br />
+                  ✓ <strong>No Validation:</strong> Any column accepts any format -
+                  ranges, text, values, anything!
                   class="form-control"
                   rows="14"
                   placeholder='Full format:&#10;&#10;{&#10;  "metadata": {...},&#10;  "headers": {...},&#10;  "data": [...]&#10;}&#10;&#10;Paste and import!'
