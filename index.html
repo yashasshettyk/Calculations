@@ -199,7 +199,9 @@
         border-right: 1px solid var(--border-color);
         background: var(--bg-secondary);
         position: relative;
-        white-space: nowrap;
+        white-space: normal;
+        min-width: 150px;
+        word-break: break-word;
       }
 
       th:last-child {
@@ -258,6 +260,8 @@
         cursor: pointer;
         transition: background 0.2s ease;
         position: relative;
+        min-width: 150px;
+        word-break: break-word;
       }
 
       td:last-child {
@@ -509,6 +513,7 @@
         th,
         td {
           padding: 8px 6px !important;
+          min-width: 120px;
         }
 
         .accent-bar {
@@ -543,6 +548,11 @@
 
         .btn-icon i {
           margin-right: 0;
+        }
+
+        th,
+        td {
+          min-width: 100px;
         }
       }
 
@@ -1706,12 +1716,19 @@
             pageTitle = data.metadata?.title || "Items";
             pageSubtitle = data.metadata?.subtitle || "Organized Checklist";
 
-            Object.assign(columnHeaders, data.headers || {});
-            // Ensure all headers have dataType property
-            Object.keys(columnHeaders).forEach((idx) => {
-              if (!columnHeaders[idx].dataType) {
-                columnHeaders[idx].dataType = "text";
-              }
+            // Clear existing headers to prevent pollution
+            Object.keys(columnHeaders).forEach(
+              (key) => delete columnHeaders[key],
+            );
+
+            // Properly import all header properties: kannada, english, dataType
+            Object.keys(data.headers).forEach((idx) => {
+              const headerData = data.headers[idx];
+              columnHeaders[idx] = {
+                kannada: headerData.kannada || "",
+                english: headerData.english || "",
+                dataType: headerData.dataType || "text",
+              };
             });
 
             // CRITICAL: Set columns array from imported headers!
@@ -1755,11 +1772,12 @@
       }
 
       function downloadJSON() {
-        // Ensure data types are included in headers
+        // Ensure all header properties are included: kannada, english, dataType
         const headersWithTypes = {};
         Object.keys(columnHeaders).forEach((idx) => {
           headersWithTypes[idx] = {
-            ...columnHeaders[idx],
+            kannada: columnHeaders[idx].kannada || "",
+            english: columnHeaders[idx].english || "",
             dataType: columnHeaders[idx].dataType || "text",
           };
         });
@@ -1779,7 +1797,7 @@
         const url = URL.createObjectURL(dataBlob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `puja_checklist_${new Date().toISOString().split("T")[0]}.json`;
+        link.download = `${pageTitle}_${new Date().toISOString().split("T")[0]}.json`;
         link.click();
         URL.revokeObjectURL(url);
       }
@@ -1851,7 +1869,7 @@
 
           const link = document.createElement("a");
           link.href = canvas.toDataURL("image/png");
-          link.download = `puja_checklist_${new Date().toISOString().split("T")[0]}.png`;
+          link.download = `${pageTitle}_${new Date().toISOString().split("T")[0]}.png`;
           link.click();
 
           btn.innerHTML = '<i class="fas fa-check"></i> Exported!';
